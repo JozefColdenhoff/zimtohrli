@@ -1,6 +1,7 @@
 name: Build Python wheels
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
 
 jobs:
   build_python_wheels:
