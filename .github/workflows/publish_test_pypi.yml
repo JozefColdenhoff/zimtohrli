@@ -67,7 +67,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/test_zimtohrli_jcoldenhoff
+      url: https://test.pypi.org/project/pyohrli
     permissions:
       id-token: write # This is required for trusted publishing
 
