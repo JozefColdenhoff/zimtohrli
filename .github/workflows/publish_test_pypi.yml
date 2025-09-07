@@ -93,3 +93,4 @@ jobs:
           # The action will automatically find and upload all .whl and .tar.gz
           # files in the default 'dist/' directory.
           repository_url: https://test.pypi.org/legacy/
+          verbose: true
