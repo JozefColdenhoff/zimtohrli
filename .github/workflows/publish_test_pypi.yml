@@ -1,0 +1,95 @@
+name: Build and Publish Python Wheels
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # By failing fast, you ensure that you don't waste time building wheels
+      # on other platforms if one of them fails.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13]
+        # Note: ARM runners like 'ubuntu-24.04-arm' are not standard GitHub-hosted runners
+        # and require a self-hosted setup or a specific GitHub plan.
+        # I've used standard runners here for a working example.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.1.2
+        # To build for macOS, you may need to set this environment variable.
+        env:
+          MACOSX_DEPLOYMENT_TARGET: 10.13
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          # Each wheel artifact is named after its operating system to avoid conflicts.
+          name: python-wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install build tool
+        run: python -m pip install build
+
+      - name: Build an sdist
+        run: python -m build --sdist
+
+      - name: Store the distribution package
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-sdist
+          path: dist/*.tar.gz
+
+  publish-to-pypi:
+    name: Publish Python distribution to PyPI
+    # This job must wait for all build jobs to complete successfully.
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/test_zimtohrli_jcoldenhoff
+    permissions:
+      id-token: write # This is required for trusted publishing
+
+    steps:
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # The pattern '*' downloads all artifacts whose names start with 'python-wheels-'.
+          pattern: python-wheels-*
+          path: dist/
+          # This ensures artifacts from different jobs don't overwrite each other.
+          merge-multiple: true
+
+      - name: Download sdist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-sdist
+          path: dist/
+
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # The action will automatically find and upload all .whl and .tar.gz
+          # files in the default 'dist/' directory.
+          repository_url: https://test.pypi.org/legacy/
