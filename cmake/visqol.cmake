@@ -106,7 +106,7 @@ add_library(visqol STATIC
     ${visqol_SOURCE_DIR}/src/xcorr.cc
 )
 target_include_directories(visqol PUBLIC ${visqol_SOURCE_DIR} ${visqol_SOURCE_DIR}/src/include)
-target_link_libraries(visqol visqol_proto libsvm armadillo absl::span pffft)
+target_link_libraries(visqol visqol_proto libsvm armadillo absl::flags_parse absl::span pffft)
 add_dependencies(visqol visqol_model)
 
 file(GLOB_RECURSE visqol_files ${visqol_SOURCE_DIR} *.cc *.c *.h)
