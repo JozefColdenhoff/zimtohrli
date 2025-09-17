@@ -16,8 +16,8 @@ class PyohrliBuildExt(build_ext):
         super().build_extensions()
 
 setup(
-    name='pyohrli',
-    version='0.2.1',
+    name='zimtohrli',
+    version='0.2.0',
     author='Martin Bruse, Jyrki Alakuijala',
     author_email='zond@google.com, jyrki@google.com',
     description='Psychoacoustic perceptual metric that quantifies the human observable difference in two audio signals in the proximity of just-noticeable-differences',
@@ -28,7 +28,7 @@ setup(
     ],
     package_dir={'': 'cpp/zimt'},
     packages=find_packages(where='cpp/zimt'),
-    py_modules=['pyohrli'],
+    py_modules=['zimtohrli'],
     ext_modules=[
         Extension(
             name='_pyohrli',
