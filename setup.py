@@ -17,7 +17,7 @@ class PyohrliBuildExt(build_ext):
 
 setup(
     name='zimtohrli',
-    version='0.2.0',
+    version='0.2.1',
     author='Martin Bruse, Jyrki Alakuijala',
     author_email='zond@google.com, jyrki@google.com',
     description='Psychoacoustic perceptual metric that quantifies the human observable difference in two audio signals in the proximity of just-noticeable-differences',
