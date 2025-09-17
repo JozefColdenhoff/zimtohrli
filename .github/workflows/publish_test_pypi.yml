@@ -59,15 +59,52 @@ jobs:
           name: python-sdist
           path: dist/*.tar.gz
 
+  # publish-to-pypi:
+  #   name: Publish Python distribution to PyPI
+  #   # This job must wait for all build jobs to complete successfully.
+  #   needs: [build_wheels, build_sdist]
+  #   runs-on: ubuntu-latest
+
+  #   environment:
+  #     name: testpypi
+  #     url: https://test.pypi.org/p/zimtohrli
+  #   permissions:
+  #     id-token: write # This is required for trusted publishing
+
+  #   steps:
+  #     - name: Download all wheel artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         # The pattern '*' downloads all artifacts whose names start with 'python-wheels-'.
+  #         pattern: python-wheels-*
+  #         path: dist/
+  #         # This ensures artifacts from different jobs don't overwrite each other.
+  #         merge-multiple: true
+
+  #     - name: Download sdist artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: python-sdist
+  #         path: dist/
+
+  #     - name: Publish package to TestPyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         # The action will automatically find and upload all .whl and .tar.gz
+  #         # files in the default 'dist/' directory.
+  #         repository_url: https://test.pypi.org/legacy/
+  #         verbose: true
+
   publish-to-pypi:
     name: Publish Python distribution to PyPI
-    # This job must wait for all build jobs to complete successfully.
+    # This job runs only after the TestPyPI publish succeeds
+    # needs: [publish-to-testpypi]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
 
     environment:
-      name: testpypi
-      url: https://test.pypi.org/p/zimtohrli
+      name: pypi
+      url: https://pypi.org/p/zimtohrli
     permissions:
       id-token: write # This is required for trusted publishing
 
@@ -75,10 +112,8 @@ jobs:
       - name: Download all wheel artifacts
         uses: actions/download-artifact@v4
         with:
-          # The pattern '*' downloads all artifacts whose names start with 'python-wheels-'.
           pattern: python-wheels-*
           path: dist/
-          # This ensures artifacts from different jobs don't overwrite each other.
           merge-multiple: true
 
       - name: Download sdist artifact
@@ -87,10 +122,8 @@ jobs:
           name: python-sdist
           path: dist/
 
-      - name: Publish package to TestPyPI
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        # No 'repository_url' is needed, it defaults to PyPI
         with:
-          # The action will automatically find and upload all .whl and .tar.gz
-          # files in the default 'dist/' directory.
-          repository_url: https://test.pypi.org/legacy/
           verbose: true
