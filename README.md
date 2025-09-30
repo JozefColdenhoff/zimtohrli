@@ -16,6 +16,20 @@ audio (and video containing audio) compression, and also be able to plug in the
 resulting psychoacoustic similarity measure into audio related machine learning
 models.
 
+### Install
+`pip install zimtohrli`
+## Usage
+Please note that the sampling frequency MUST be 48kHz. 
+See code below for reference.
+```
+import librosa
+from zimtohrli import mos_from_signals
+
+signal_a, sr_a = librosa.load("audio_a.wav", sr=48000, mono=True)
+signal_b, sr_b = librosa.load("audio_b.wav", sr=48000, mono=True)
+mos = mos_from_signals(signal_a, signal_b)
+```
+
 ## Design
 
 Zimtohrli implements a perceptually-motivated audio similarity metric that
@@ -79,143 +93,5 @@ The datasets can be acquired using the tools [coresvnet](go/bin/coresvnet),
 
 Zimtohrli can compare ~70 seconds of audio per second on a single 2.5GHz core.
 
-## Correlation Testing
-
-Zimtohrli includes a comprehensive correlation testing framework to validate how
-well audio quality metrics correlate with human perception. The system evaluates
-metrics against multiple listening test datasets containing either Mean Opinion
-Scores (MOS) or Just Noticeable Difference (JND) ratings.
-
-### How Correlation Scoring Works
-
-The system uses two different evaluation methods depending on the dataset type:
-
-- **For MOS datasets**: Calculates Spearman rank correlation coefficient between
-  predicted scores and human ratings. Higher correlation values (closer to 1.0)
-  indicate better alignment with human perception.
-- **For JND datasets**: Determines classification accuracy by finding an optimal
-  threshold that maximizes correct predictions of whether differences are
-  audible. The score represents the percentage of correct classifications.
-
-### Running Correlation Tests
-
-1. **Install external metrics** (optional):
-   ```bash
-   ./install_external_metrics.sh /path/to/destination
-   ```
-
-2. **Acquire datasets** using the provided tools in `go/bin/`
-
-3. **Calculate metrics**:
-   ```bash
-   go run go/bin/score/score.go -calculate "/path/to/datasets/*" -calculate_zimtohrli -calculate_visqol
-   ```
-
-4. **Generate correlation report**:
-   ```bash
-   go run go/bin/score/score.go -report "/path/to/datasets/*" > correlation_report.md
-   ```
-
-The report includes correlation tables for each dataset and a global leaderboard
-showing mean squared error across all studies, where lower values indicate
-better overall performance.
-
-## Compatibility
-
-Zimtohrli is a project under development, and is built and tested in a Debian-like
-environment. It's built to work with C++17.
-
-## Minimal simple usage
-
-The very simplest way to use Zimtohrli is to just include the `zimtohrli.h` header.
-
-This allows you to
-
-```
-#include "zimtohrli.h"
-
-const Zimtohrli z();
-const Spectrogram spec_a = z.Analyze(Span(samples_a, size_a));
-Spectrogram spec_b = z.Analyze(Span(samples_b, size_b));
-const float distance = z.Distance(spec_a, spec_b);
-```
-
-The samples have to be floats between -1 and 1 at 48kHz sample rate.
-
-## Build
-
-Some dependencies for Zimtohrli are downloaded and managed by the build script,
-but others need to be installed before building.
-
-- cmake
-- ninja-build
-
-To build the compare tool, a few more dependencies are necessary:
-
-- libogg-dev
-- libvorbis-dev
-- libflac-dev
-- libopus-dev
-- libasound2-dev
-- libglfw3-dev
-- libsoxr-dev
-
-Finally, to build and test the Python and Go wrappers, the following dependencies
-are necessary:
-
-- golang-go
-- python3
-- xxd
-- zlib1g-dev
-- ffmpeg
-
-To install these in a Debian-like system:
-
-```
-sudo apt install -y cmake ninja-build clang clang-tidy libogg-dev libvorbis-dev libflac-dev libopus-dev libasound2-dev libglfw3-dev libsoxr-dev golang-go python3 xxd zlib1g-dev ffmpeg
-```
-
-Once they are installed, configure the project:
-
-```
-./configure.sh
-```
-
-Build the project:
-```
-(cd build && ninja)
-```
-
-### Address sanitizer build
-
-To build with address sanitizer, configure a new build directory with asan configured:
 
 
-```
-./configure.sh asan
-```
-
-Build the project:
-```
-(cd asan_build && ninja)
-```
-
-### Debug build
-
-To build with debug symbols, configure a new build directory with debugging configured:
-
-
-```
-./configure.sh debug
-```
-
-Build the project:
-```
-(cd debug_build && ninja)
-```
-
-### Testing
-
-```
-(cd build && ninja && ninja test)
-```
