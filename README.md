@@ -16,7 +16,7 @@ audio (and video containing audio) compression, and also be able to plug in the
 resulting psychoacoustic similarity measure into audio related machine learning
 models.
 
-### Install
+## Install
 `pip install zimtohrli`
 ## Usage
 Please note that the sampling frequency MUST be 48kHz. 
@@ -82,16 +82,3 @@ The algorithm consists of four main stages:
 The final distance metric is computed as 1 - NSIM, providing a value between 0
 (identical) and 1 (maximally different) that correlates with subjective quality
 assessments.
-
-## Performance
-
-For correlation performance with a few datasets see [CORRELATION.md](CORRELATION.md).
-
-The datasets can be acquired using the tools [coresvnet](go/bin/coresvnet),
-[perceptual_audio](go/bin/perceptual_audio), [sebass_db](go/bin/sebass_db),
-[odaq](go/bin/odaq), and [tcd_voip](go/bin/tcd_voip).
-
-Zimtohrli can compare ~70 seconds of audio per second on a single 2.5GHz core.
-
-
-
